@@ -87,7 +87,7 @@ void opcontrol() {
 	pros::Motor left_center (MOTOR_LEFT_CENTER);
 	pros::Motor left_back (MOTOR_LEFT_BACK);
 	pros::Motor right_front (MOTOR_RIGHT_FRONT);
-	pros::Motor right_center (MOTOR_RIGHT _CENTER);
+	pros::Motor right_center (MOTOR_RIGHT_CENTER);
 	pros::Motor right_back (MOTOR_RIGHT_BACK);
 
 	while (true) {
