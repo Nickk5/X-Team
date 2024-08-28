@@ -74,28 +74,30 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 #define MOTOR_LEFT_FRONT 1;
-#define MOTOR_LEFT_BACK 2;
-#define MOTOR_RIGHT_FRONT 3;
-#define MOTOR_RIGHT_BACK 4;
-#define MOTOR_ELEPHANT_TRUNK 11;
+#define MOTOR_LEFT_CENTER 2;
+#define MOTOR_LEFT_BACK 3;
+#define MOTOR_RIGHT_FRONT 4;
+#define MOTOR_LEFT_CENTER 5;
+#define MOTOR_RIGHT_BACK 6;
+double modifier = 1.0;
+
 void opcontrol() {
 	pros::Controller master(CONTROLLER_MASTER); 
-	pros::Motor left_front (MOTOR_LEFT_FRONT,true);
+	pros::Motor left_front (MOTOR_LEFT_FRONT);
+	pros::Motor left_center (MOTOR_LEFT_CENTER);
 	pros::Motor left_back (MOTOR_LEFT_BACK);
-	pros::Motor right_front (MOTOR_RIGHT_FRONT
-	-1=);
+	pros::Motor right_front (MOTOR_RIGHT_FRONT);
+	pros::Motor right_center (MOTOR_RIGHT _CENTER);
 	pros::Motor right_back (MOTOR_RIGHT_BACK);
-	pros::Motor elephant_trunk (MOTOR_ELEPHANT_TRUNK);
 
 	while (true) {
-		left_front.move(master.get_analog(ANALOG_LEFT_Y));
-		left_back.move(master.get_analog(ANALOG_LEFT_Y));
-		right_front.move(master.get_analog(ANALOG_RIGHT_Y));
-		right_back.move(master.get_analog(ANALOG_RIGHT_Y));
-		if(master.get_digital(R2)){
-				elephant_trunk.move(127);
-		if ()
+		left_front.move((master.get_analog(ANALOG_RIGHT_Y) + master.get_analog(ANALOG_LEFT_X)) * modifier);
+		left_center.move((master.get_analog(ANALOG_RIGHT_Y) + master.get_analog(ANALOG_LEFT_X)) * modifier);
+		left_back.move((master.get_analog(ANALOG_RIGHT_Y) + master.get_analog(ANALOG_LEFT_X))  * modifier);
+
+		right_front.move((master.get_analog(ANALOG_RIGHT_Y) - master.get_analog(ANALOG_LEFT_X)) * modifier);
+		right_center.move((master.get_analog(ANALOG_RIGHT_Y) - master.get_analog(ANALOG_LEFT_X)) * modifier);
+		right_back.move((master.get_analog(ANALOG_RIGHT_Y) - master.get_analog(ANALOG_LEFT_X)) * modifier);
 		
 	}
-}
 }
