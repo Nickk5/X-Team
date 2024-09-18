@@ -47,7 +47,6 @@ void on_center_button() {
  */
 void initialize() {
     pros::lcd::initialize();
-    pros::lcd::set_text(1, "Sigma Sigma on the wall whos the skibidiest off them all");
     pros::lcd::register_btn1_cb(on_center_button);
 }
 
@@ -103,26 +102,30 @@ void opcontrol() {
         double left_y = (master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y));
         double right_x = (master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X));
 
-        double leftVelocity = (right_x + left_y) * modifier;
-        double rightVelocity = (right_x - left_y) * modifier;
+        double leftVoltage = (right_x + left_y) * modifier;
+        double rightVoltage = (right_x - left_y) * modifier;
 
         // Control left side of the robot
-        left_front.move(leftVelocity);
-        left_center.move(leftVelocity * -1);
-        left_back.move(leftVelocity);
+        left_front.move(leftVoltage);
+        left_center.move(leftVoltage * -1);
+        left_back.move(leftVoltage);
 
         // Control right side of the robot
-        right_front.move(rightVelocity);
-        right_center.move(rightVelocity * -1);
-        right_back.move(rightVelocity);
+        right_front.move(rightVoltage);
+        right_center.move(rightVoltage * -1);
+        right_back.move(rightVoltage);
 
-        if(master.get_digital_new_press(E_CONTROLLER_DIGITAL_R2))
+        if(master.get_digital(E_CONTROLLER_DIGITAL_R2))
         {
             intake.move(127);
         }
-        else if(master.get_digital_new_press(E_CONTROLLER_DIGITAL_R1))
+        else if(master.get_digital(E_CONTROLLER_DIGITAL_R1))
         {
             intake.move(-127);
+        }
+        else
+        {
+            intake.move(0);
         }
         pros::delay(20); // Small delay to prevent high CPU usage
     }
