@@ -1,4 +1,26 @@
 #include "main.h"
+// Motor ports
+#define MOTOR_LEFT_FRONT 4
+#define MOTOR_LEFT_CENTER 2
+#define MOTOR_LEFT_BACK 3
+#define MOTOR_RIGHT_FRONT 8
+#define MOTOR_RIGHT_CENTER 10
+#define MOTOR_RIGHT_BACK 9
+#define MOTOR_INTAKE 7
+
+// Motor objects
+pros::Motor left_front (MOTOR_LEFT_FRONT);
+pros::Motor left_center (MOTOR_LEFT_CENTER);
+pros::Motor left_back (MOTOR_LEFT_BACK);
+pros::Motor right_front (MOTOR_RIGHT_FRONT);
+pros::Motor right_center (MOTOR_RIGHT_CENTER);
+pros::Motor right_back (MOTOR_RIGHT_BACK);
+pros::Motor intake (MOTOR_INTAKE);
+
+// Modifier for speed control
+// Has to be below 1 (btw) (dont gpt this  )
+double modifier = -0.75;
+
 
 /**
  * A callback function for LLEMU's center button.
@@ -7,14 +29,15 @@
  * "I was pressed!" and nothing.
  */
 void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
+    static bool pressed = false;
+    pressed = !pressed;
+    if (pressed) {
+        pros::lcd::set_text(2, "I was pressed!");
+    } else {
+        pros::lcd::clear_line(2);
+    }
 }
+
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -23,10 +46,9 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
-
-	pros::lcd::register_btn1_cb(on_center_button);
+    pros::lcd::initialize();
+    pros::lcd::set_text(1, "Sigma Sigma on the wall whos the skibidiest off them all");
+    pros::lcd::register_btn1_cb(on_center_button);
 }
 
 /**
@@ -69,35 +91,40 @@ void autonomous() {}
  * If no competition control is connected, this function will run immediately
  * following initialize().
  *
- * If the robot is disabled or communications is lost, the
- * operator control task will be stopped. Re-enabling the robot will restart the
- * task, not resume it from where it left off.
+ * If the robot is disabled or communications is lost, this function will be
+ * stopped. Re-enabling the robot will restart the task, not resume it from
+ * where it left off.
  */
-#define MOTOR_LEFT_FRONT 1;
-#define MOTOR_LEFT_CENTER 2;
-#define MOTOR_LEFT_BACK 3;
-#define MOTOR_RIGHT_FRONT 4;
-#define MOTOR_LEFT_CENTER 5;
-#define MOTOR_RIGHT_BACK 6;
-double modifier = 1.0;
-
 void opcontrol() {
-	pros::Controller master(CONTROLLER_MASTER); 
-	pros::Motor left_front (MOTOR_LEFT_FRONT);
-	pros::Motor left_center (MOTOR_LEFT_CENTER);
-	pros::Motor left_back (MOTOR_LEFT_BACK);
-	pros::Motor right_front (MOTOR_RIGHT_FRONT);
-	pros::Motor right_center (MOTOR_RIGHT_CENTER);
-	pros::Motor right_back (MOTOR_RIGHT_BACK);
+    pros::Controller master(CONTROLLER_MASTER);
 
-	while (true) {
-		left_front.move((master.get_analog(ANALOG_RIGHT_Y) + master.get_analog(ANALOG_LEFT_X)) * modifier);
-		left_center.move((master.get_analog(ANALOG_RIGHT_Y) + master.get_analog(ANALOG_LEFT_X)) * modifier);
-		left_back.move((master.get_analog(ANALOG_RIGHT_Y) + master.get_analog(ANALOG_LEFT_X))  * modifier);
+    while (true) {
+        // Calculate speeds for arcade drive 
+        double left_y = (master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y));
+        double right_x = (master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X));
 
-		right_front.move((master.get_analog(ANALOG_RIGHT_Y) - master.get_analog(ANALOG_LEFT_X)) * modifier);
-		right_center.move((master.get_analog(ANALOG_RIGHT_Y) - master.get_analog(ANALOG_LEFT_X)) * modifier);
-		right_back.move((master.get_analog(ANALOG_RIGHT_Y) - master.get_analog(ANALOG_LEFT_X)) * modifier);
-		
-	}
+        double leftVelocity = (right_x + left_y) * modifier;
+        double rightVelocity = (right_x - left_y) * modifier;
+
+        // Control left side of the robot
+        left_front.move(leftVelocity);
+        left_center.move(leftVelocity * -1);
+        left_back.move(leftVelocity);
+
+        // Control right side of the robot
+        right_front.move(rightVelocity);
+        right_center.move(rightVelocity * -1);
+        right_back.move(rightVelocity);
+
+        if(master.get_digital_new_press(E_CONTROLLER_DIGITAL_R2))
+        {
+            intake.move(127);
+        }
+        else if(master.get_digital_new_press(E_CONTROLLER_DIGITAL_R1))
+        {
+            intake.move(-127);
+        }
+        pros::delay(20); // Small delay to prevent high CPU usage
+    }
 }
+
